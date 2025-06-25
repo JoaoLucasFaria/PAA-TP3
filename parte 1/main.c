@@ -5,8 +5,10 @@
 #include "shift_and.h"
 #include "tp.h"
 
-int main(int argc, char *argv[]) {
-    if (argc != 5) {
+int main(int argc, char *argv[])
+{
+    if (argc != 5)
+    {
         printf("Uso: %s <algoritmo (1=DP, 2=Shift-And)> <arquivo_texto> <arquivo_padroes> <k>\n", argv[0]);
         return 1;
     }
@@ -18,15 +20,29 @@ int main(int argc, char *argv[]) {
     int num_padroes = 0;
     padroes = read_lines(argv[3], &num_padroes);
 
-    for (int i = 0; i < num_padroes; i++) {
-        if (algoritmo == 1) {
+    if (k < 0 || k > 3)
+    {
+        printf("Erro: K deve estar entre 0 e 3.\n");
+        return 1;
+    }
+
+    if (algoritmo == 1)
+    {
+        for (int i = 0; i < num_padroes; i++)
             busca_aproximada_dp(texto, padroes[i], k);
-        } else if (algoritmo == 2) {
-            busca_aproximada_shiftand(texto, padroes[i], k);  // depois passamos k aqui também
-        } else {
-            fprintf(stderr, "Algoritmo inválido\n");
-            break;
+    }
+    else if (algoritmo == 2)
+    {
+        for (int i = 0; i < num_padroes; i++)
+        {
+            printf("%s ", padroes[i]);
+            shift_and_approximate(texto, padroes[i], k);
+            printf("\n");
         }
+    }
+    else
+    {
+        fprintf(stderr, "Algoritmo inválido\n");
     }
 
     free(texto);

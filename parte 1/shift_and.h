@@ -1,6 +1,6 @@
 #ifndef SHIFT_AND_H
 #define SHIFT_AND_H
 
-void busca_aproximada_shiftand(const char *texto, const char *padrao, int k);
+void shift_and_approximate(const char *text, const char *pattern, int k);
 
 #endif
