@@ -1,0 +1,22 @@
+==== Desempenho BMH em texto NÃO comprimido ====
+Tempo total: 0.000002 segundos
+
+Padrão: palavras
+Ocorrências: 2
+Comparações: 23
+
+Padrão: exemplo
+Ocorrências: 1
+Comparações: 16
+
+==== Desempenho BMH em arquivo COMPRIMIDO ====
+Tempo total: 0.000005 segundos
+
+Padrão: palavras
+Ocorrências: 2
+Comparações: 253
+
+Padrão: exemplo
+Ocorrências: 1
+Comparações: 322
+
