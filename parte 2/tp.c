@@ -81,7 +81,7 @@ void escrever_resultado_comparativo(
         fprintf(fp, "%s", padroes[i]);
         for (int j = 0; j < qtd_ocorrencias_nao_comp[i]; j++)
         {
-            fprintf(fp, " %d", ocorrencias_nao_comp[i][j]);
+            fprintf(fp, " %d", ocorrencias_nao_comp[i][j]+1);
         }
         fprintf(fp, "\n(%d comparações)\n\n", comparacoes_nao_comp[i]);
     }
@@ -93,7 +93,7 @@ void escrever_resultado_comparativo(
         fprintf(fp, "%s", padroes[i]);
         for (int j = 0; j < qtd_ocorrencias_comp[i]; j++)
         {
-            fprintf(fp, " %d", ocorrencias_comp[i][j]);
+            fprintf(fp, " %d", ocorrencias_comp[i][j]+1);
         }
         fprintf(fp, "\n(%d comparações)\n\n", comparacoes_comp[i]);
     }
