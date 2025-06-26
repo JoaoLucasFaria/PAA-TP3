@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/stat.h>
 #include "bmh.h"
 #include "tp.h"
 #include "huffman.h"
@@ -18,7 +19,16 @@ void imprimir_memoria_utilizada()
 {
     struct rusage uso;
     getrusage(RUSAGE_SELF, &uso);
-    printf("Memória: %.2f MB\n", uso.ru_maxrss / 1024.0);
+    printf("Memória RAM: %.2f MB\n", uso.ru_maxrss / 1024.0);
+}
+
+long tamanho_arquivo(const char *caminho)
+{
+    struct stat st;
+    if (stat(caminho, &st) == 0)
+        return st.st_size;
+    else
+        return -1;
 }
 
 int main(int argc, char *argv[])
@@ -40,6 +50,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Erro ao comprimir o texto.\n");
         return 1;
     }
+    long tamanho_comprimido = tamanho_arquivo("texto_comp.bin");
+    printf("Tamanho do texto comprimido: %f MB\n", tamanho_comprimido / (1024.0 * 1024.0));
+
     if (huffman_carregar_tabela() != 0)
     {
         fprintf(stderr, "Erro ao carregar a tabela de Huffman.\n");
@@ -101,6 +114,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Erro ao ler o texto original.\n");
         return 1;
     }
+    long tamanho_original = tamanho_arquivo(caminho_texto);
+    printf("Tamanho do texto original: %f MB\n", tamanho_original / (1024.0 * 1024.0));
 
     int **ocorrencias_nao_comp = malloc(qtd_padroes * sizeof(int *));
     int *qtd_ocorrencias_nao_comp = malloc(qtd_padroes * sizeof(int));
