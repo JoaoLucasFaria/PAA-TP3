@@ -1,10 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "bmh.h"
 #include "tp.h"
 #include "huffman.h"
+
+
+double tempo_usuario()
+{
+    struct rusage uso;
+    getrusage(RUSAGE_SELF, &uso);
+    return uso.ru_utime.tv_sec + uso.ru_utime.tv_usec / 1e6;
+}
+
+void imprimir_memoria_utilizada()
+{
+    struct rusage uso;
+    getrusage(RUSAGE_SELF, &uso);
+    printf("Memória: %.2f MB\n", uso.ru_maxrss / 1024.0);
+}
 
 int main(int argc, char *argv[])
 {
@@ -18,21 +34,19 @@ int main(int argc, char *argv[])
     const char *caminho_padroes = argv[2];
     const char *caminho_saida = argv[3];
 
-    // Etapa 1: Comprimir o texto
+    double ini_usuario = tempo_usuario();
+
     if (huffman_comprimir_com_marcacao(caminho_texto, "texto_comp.bin") != 0)
     {
         fprintf(stderr, "Erro ao comprimir o texto.\n");
         return 1;
     }
-
-    // Etapa 2: Carregar a tabela de Huffman (necessário para codificar os padrões)
     if (huffman_carregar_tabela() != 0)
     {
         fprintf(stderr, "Erro ao carregar a tabela de Huffman.\n");
         return 1;
     }
 
-    // Etapa 3: Ler os padrões do arquivo
     int qtd_padroes = 0;
     char **padroes = ler_padroes(caminho_padroes, &qtd_padroes);
     if (!padroes)
@@ -41,10 +55,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Etapa 4: Codificar os padrões com a árvore de Huffman
     char **padroes_codificados = malloc(qtd_padroes * sizeof(char *));
     int *bits_padroes = malloc(qtd_padroes * sizeof(int));
-
     if (!padroes_codificados || !bits_padroes)
     {
         fprintf(stderr, "Erro de alocação de memória.\n");
@@ -61,7 +73,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Etapa 5: Buscar padrões em "texto_comp.bin" usando BMH adaptado para bits (ainda a implementar)
     char *bits_comprimidos = carregar_bits_do_binario("texto_comp.bin");
     if (!bits_comprimidos)
     {
@@ -73,7 +84,7 @@ int main(int argc, char *argv[])
     int *qtd_ocorrencias_comp = malloc(qtd_padroes * sizeof(int));
     int *comparacoes_comp = malloc(qtd_padroes * sizeof(int));
 
-    clock_t ini2 = clock();
+
     for (int i = 0; i < qtd_padroes; i++)
     {
         ResultadoBMH res = bmh_binario(bits_comprimidos, padroes_codificados[i]);
@@ -81,10 +92,6 @@ int main(int argc, char *argv[])
         qtd_ocorrencias_comp[i] = res.quantidade;
         comparacoes_comp[i] = res.comparacoes;
     }
-    clock_t fim2 = clock();
-    double tempo_comp = (double)(fim2 - ini2) / CLOCKS_PER_SEC;
-
-    // Etapa 6: Buscar padrões no texto original e medir desempenho
     char *texto_original = ler_arquivo_texto(caminho_texto);
     if (!texto_original)
     {
@@ -96,7 +103,6 @@ int main(int argc, char *argv[])
     int *qtd_ocorrencias_nao_comp = malloc(qtd_padroes * sizeof(int));
     int *comparacoes_nao_comp = malloc(qtd_padroes * sizeof(int));
 
-    clock_t ini = clock();
     for (int i = 0; i < qtd_padroes; i++)
     {
         ResultadoBMH resultado = bmh(texto_original, padroes[i]);
@@ -104,10 +110,7 @@ int main(int argc, char *argv[])
         qtd_ocorrencias_nao_comp[i] = resultado.quantidade;
         comparacoes_nao_comp[i] = resultado.comparacoes;
     }
-    clock_t fim = clock();
-    double tempo_nao_comp = (double)(fim - ini) / CLOCKS_PER_SEC;
 
-    // Imprimir
     escrever_resultado_comparativo(
         caminho_saida,
         padroes,
@@ -115,26 +118,37 @@ int main(int argc, char *argv[])
         ocorrencias_nao_comp,
         qtd_ocorrencias_nao_comp,
         comparacoes_nao_comp,
-        tempo_nao_comp,
         ocorrencias_comp,
         qtd_ocorrencias_comp,
-        comparacoes_comp,
-        tempo_comp);
+        comparacoes_comp);
 
     printf("Compressão e codificação dos padrões realizadas com sucesso.\n");
 
-    // Liberação de memória
+    double fim_usuario = tempo_usuario();
+
+    imprimir_memoria_utilizada();
+    printf("Tempo de usuário: %.6f segundos\n", fim_usuario - ini_usuario);
+
+    // Libera padrões codificados
     for (int i = 0; i < qtd_padroes; i++)
         free(padroes_codificados[i]);
     free(padroes_codificados);
     free(bits_padroes);
+
+    // Libera padrões originais
     liberar_padroes(padroes, qtd_padroes);
+
+    // Libera texto original
     free(texto_original);
+
+    // Libera dados de busca não comprimida
     free(comparacoes_nao_comp);
     free(qtd_ocorrencias_nao_comp);
     for (int i = 0; i < qtd_padroes; i++)
         free(ocorrencias_nao_comp[i]);
     free(ocorrencias_nao_comp);
+
+    // Libera bits comprimidos e dados de busca comprimida
     free(bits_comprimidos);
     for (int i = 0; i < qtd_padroes; i++)
         free(ocorrencias_comp[i]);

@@ -56,28 +56,6 @@ char **ler_padroes(const char *caminho, int *quantidade)
     return padroes;
 }
 
-void escrever_resultado(const char *caminho_saida, char **padroes, int qtd_padroes, int **ocorrencias, int *qtd_ocorrencias)
-{
-    FILE *fp = fopen(caminho_saida, "w");
-    if (!fp)
-        return;
-
-    for (int i = 0; i < qtd_padroes; i++)
-    {
-        fprintf(fp, "%s", padroes[i]);
-        for (int j = 0; j < qtd_ocorrencias[i]; j++)
-        {
-            fprintf(fp, " %d", ocorrencias[i][j] + 1);
-        }
-        fprintf(fp, "\n");
-    }
-
-    fclose(fp);
-}
-
-#include <stdio.h>
-#include "tp.h"
-
 void escrever_resultado_comparativo(
     const char *caminho_saida,
     char **padroes,
@@ -85,11 +63,9 @@ void escrever_resultado_comparativo(
     int **ocorrencias_nao_comp,
     int *qtd_ocorrencias_nao_comp,
     int *comparacoes_nao_comp,
-    double tempo_nao_comp,
     int **ocorrencias_comp,
     int *qtd_ocorrencias_comp,
-    int *comparacoes_comp,
-    double tempo_comp)
+    int *comparacoes_comp)
 {
     FILE *fp = fopen(caminho_saida, "w");
     if (!fp)
@@ -99,23 +75,27 @@ void escrever_resultado_comparativo(
     }
 
     fprintf(fp, "==== Desempenho BMH em texto NÃO comprimido ====\n");
-    fprintf(fp, "Tempo total: %.6f segundos\n\n", tempo_nao_comp);
 
     for (int i = 0; i < qtd_padroes; i++)
     {
-        fprintf(fp, "Padrão: %s\n", padroes[i]);
-        fprintf(fp, "Ocorrências: %d\n", qtd_ocorrencias_nao_comp[i]);
-        fprintf(fp, "Comparações: %d\n\n", comparacoes_nao_comp[i]);
+        fprintf(fp, "%s", padroes[i]);
+        for (int j = 0; j < qtd_ocorrencias_nao_comp[i]; j++)
+        {
+            fprintf(fp, " %d", ocorrencias_nao_comp[i][j]);
+        }
+        fprintf(fp, "\n(%d comparações)\n\n", comparacoes_nao_comp[i]);
     }
 
     fprintf(fp, "==== Desempenho BMH em arquivo COMPRIMIDO ====\n");
-    fprintf(fp, "Tempo total: %.6f segundos\n\n", tempo_comp);
 
     for (int i = 0; i < qtd_padroes; i++)
     {
-        fprintf(fp, "Padrão: %s\n", padroes[i]);
-        fprintf(fp, "Ocorrências: %d\n", qtd_ocorrencias_comp[i]);
-        fprintf(fp, "Comparações: %d\n\n", comparacoes_comp[i]);
+        fprintf(fp, "%s", padroes[i]);
+        for (int j = 0; j < qtd_ocorrencias_comp[i]; j++)
+        {
+            fprintf(fp, " %d", ocorrencias_comp[i][j]);
+        }
+        fprintf(fp, "\n(%d comparações)\n\n", comparacoes_comp[i]);
     }
 
     fclose(fp);
@@ -140,13 +120,15 @@ char *carregar_bits_do_binario(const char *caminho)
     fseek(fp, pos_dados, SEEK_SET);
 
     char *bits = malloc(bytes_dados * 8 + 1);
-    if (!bits) {
+    if (!bits)
+    {
         fclose(fp);
         return NULL;
     }
 
     int i = 0;
-    while ((c = fgetc(fp)) != EOF) {
+    while ((c = fgetc(fp)) != EOF)
+    {
         for (int j = 7; j >= 0; j--)
             bits[i++] = ((c >> j) & 1) ? '1' : '0';
     }
@@ -155,7 +137,6 @@ char *carregar_bits_do_binario(const char *caminho)
     fclose(fp);
     return bits;
 }
-
 
 void liberar_padroes(char **padroes, int quantidade)
 {
