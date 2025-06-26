@@ -38,7 +38,6 @@ char **read_lines(const char *filename, int *num_lines) {
     *num_lines = 0;
 
     while (fgets(buffer, sizeof(buffer), fp)) {
-        // Remove \n e \r
         buffer[strcspn(buffer, "\r\n")] = '\0';
 
         lines = realloc(lines, (*num_lines + 1) * sizeof(char *));

@@ -1,6 +1,2 @@
-algoritmo
-compressão
-padroes
-estrutura
-eficiensia
-poderossa
+palavras
+exemplo

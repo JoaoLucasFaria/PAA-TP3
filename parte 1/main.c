@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
     fclose(stdout);
-    freopen("/dev/tty", "w", stdout); // Restaurar stdout para terminal
+    freopen("/dev/tty", "w", stdout);
 
     clock_t fim_cpu = clock();
     gettimeofday(&fim_real, NULL);

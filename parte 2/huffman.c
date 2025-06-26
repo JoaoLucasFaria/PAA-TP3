@@ -215,7 +215,6 @@ int huffman_carregar_tabela(void)
     if (!huffman_raiz)
         return 1;
 
-    // Regenerar tabela de códigos, se estiver vazia
     int tabela_vazia = 1;
     for (int i = 0; i < 256; i++)
     {

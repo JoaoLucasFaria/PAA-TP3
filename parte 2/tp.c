@@ -39,7 +39,7 @@ char **ler_padroes(const char *caminho, int *quantidade)
 
     while (fgets(linha, TAM_LINHA, fp))
     {
-        linha[strcspn(linha, "\r\n")] = '\0'; // remove \n ou \r\n
+        linha[strcspn(linha, "\r\n")] = '\0';
 
         if (count >= capacidade)
         {
@@ -112,7 +112,7 @@ char *carregar_bits_do_binario(const char *caminho)
     while ((c = fgetc(fp)) != EOF && c != '\0')
         ;
 
-    // Agora estamos no início dos dados comprimidos
+    // Início dos dados comprimidos
     long pos_dados = ftell(fp);
     fseek(fp, 0, SEEK_END);
     long fim = ftell(fp);
